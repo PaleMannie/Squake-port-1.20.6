@@ -20,6 +20,7 @@ minecraft {
 
     mappings channel: mapping_channel, version: mapping_version
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    reobf = false
     copyIdeResources = true
 
     runs {
@@ -28,13 +29,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-
-
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
+            //arg "-mixin.config=squakeport_1_20_6.mixins.json"
         }
 
         client {
@@ -56,12 +51,14 @@ minecraft {
 
         data {
             workingDirectory project.file('run-data')
-
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
         }
     }
 }
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
 mixin {
     // MixinGradle Settings
     config 'squakeport_1_20_6.mixins.json'
@@ -73,8 +70,6 @@ mixin {
     debug.verbose = true
     debug.export = true
 }
-
-sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
 }
@@ -117,7 +112,7 @@ tasks.named('jar', Jar).configure {
         ])
     }
 
-    finalizedBy 'reobfJar'
+    //finalizedBy 'reobfJar'
 }
 
 publishing {
@@ -131,6 +126,13 @@ publishing {
             url "file://${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+eclipse {
+    // Run everytime eclipse builds the code
+    //autoBuildTasks genEclipseRuns
+    // Run when importing the project
+    synchronizationTasks 'genEclipseRuns'
 }
 
 tasks.withType(JavaCompile).configureEach {
